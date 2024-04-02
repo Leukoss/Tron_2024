@@ -14,6 +14,7 @@ class GUI:
         self.game = game
         self.pixel_length = pixel_length
         self.width, self.height = game.width, game.height
+        self.width_pixel, self.height_pixel = self.width * self.pixel_length, self.height * self.pixel_length
         self.dict_pages, self.current_page = {}, 0
         self.window = None
         self.frame = None
@@ -45,12 +46,9 @@ class GUI:
         """
         Initialize the main window using Tkinter
         """
-        # Define the dimension for the main window in pixel
-        width_pix, height_pix = self.width * self.pixel_length, self.height * self.pixel_length
-
         # Define the attribute of the window
         self.window = tk.Tk()
-        self.window.geometry(str(width_pix) + "x" + str(height_pix))
+        self.window.geometry(str(self.width_pixel) + "x" + str(self.height_pixel))
         self.window.title("Tron Game")
 
         # Creation of the frame stocking all the pages
@@ -62,7 +60,7 @@ class GUI:
         # Initialize the first page
         frame_0 = self.create_page(id_page=0, frame=self.frame)
 
-        self.canvas = tk.Canvas(frame_0, width=width_pix, height=height_pix, bg="Black")
+        self.canvas = tk.Canvas(frame_0, width=self.width_pixel, height=self.height_pixel, bg="Black")
         self.canvas.place(x=0, y=0)
 
     def draw_case(self, x: int, y: int, color: str) -> None:
@@ -72,10 +70,14 @@ class GUI:
         :param y: ord position of the case
         :param color: of the case (change according to the player, wall, ...)
         """
+        # x *= self.pixel_length
+        # y *= self.pixel_length
+        # self.canvas.create_rectangle(x, self.widget_height - y,
+        #                              x + self.pixel_length, self.widget_height - y - self.pixel_length,
+        #                              fill=color)
         x *= self.pixel_length
         y *= self.pixel_length
-        self.canvas.create_rectangle(x, self.widget_height - y, x + self.pixel_length,
-                                     self.widget_height - y - self.pixel_length, fill=color)
+        self.canvas.create_rectangle(x, y, x + self.pixel_length, y + self.pixel_length, fill=color)
 
     def get_height_widget(self) -> None:
         """
@@ -94,6 +96,7 @@ class GUI:
             for y in range(self.height):
                 # Wall from the map
                 if self.game.grid[x, y] == 1:
+                    print("GRAY")
                     self.draw_case(x, y, "gray")
                 # Wall from the player 1
                 elif self.game.grid[x, y] == 2:
@@ -113,8 +116,5 @@ class GUI:
         info_1 = f"SCORE PLAYER 1 : {self.game.player_1.score}"
         info_2 = f"SCORE PLAYER 2 : {self.game.player_2.score}"
 
-        # Shift between both text in the y-axis
-        y_offset = 10
-
         self.canvas.create_text(80, 13, font='Helvetica 12 bold', fill='red', text=info_1)
-        self.canvas.create_text(80, 13 + y_offset, font='Helvetica 12 bold', fill='blue', text=info_2)
+        self.canvas.create_text(410, 13, font='Helvetica 12 bold', fill='blue', text=info_2)
