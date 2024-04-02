@@ -12,3 +12,4 @@ class Player:
         self.x = x
         self.y = y
         self.score = score
+        self.move = []

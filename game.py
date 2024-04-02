@@ -1,5 +1,6 @@
 """ Manage all the features related to the Game """
 
+import random
 import numpy as np
 from player import Player
 
@@ -32,3 +33,39 @@ class Game:
 
         return grid
 
+    def allowed_move(self, player: Player) -> list[tuple[int, int]]:
+        """
+        Assign the new allowed moves to the player according to its current position
+        :param player: of the game
+        :return: A tuple of integers (i, j) representing the random move, where:
+                 - i represents the change in position along the x-axis.
+                 - j represents the change in position along the y-axis.
+        """
+        allowed_move = []
+
+        # Up : (0, -1), Down : (0, 1), Right : (1, 0), Left  : (-1, 0)
+        possible_moves = [(0, -1), (0, 1), (1, 0), (-1, 0)]
+
+        # For each possible moves, we check the availability of the case
+        for dx, dy in possible_moves:
+            new_x, new_y = player.x + dx, player.y + dy
+            if self.grid[new_x][new_y] == 0:
+                allowed_move.append((new_x, new_y))
+
+        return allowed_move
+
+    def random_move(self, player: Player) -> tuple[int, int]:
+        """
+        Assign the new random moves to the player according to its current position
+        :param player: of the game
+        :return: A tuple of integers (i, j) representing the random move, where:
+                 - i represents the change in position along the x-axis.
+                 - j represents the change in position along the y-axis.
+        """
+        allowed_move = self.allowed_move(player)
+
+        # In case there is no allowed move, we redefine allowed_move with the default case
+        if len(allowed_move) == 0:
+            allowed_move = [(0, -1), (0, 1), (1, 0), (-1, 0)]
+
+        return allowed_move[random.randrange(len(allowed_move))]

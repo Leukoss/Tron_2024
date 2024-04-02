@@ -70,11 +70,6 @@ class GUI:
         :param y: ord position of the case
         :param color: of the case (change according to the player, wall, ...)
         """
-        # x *= self.pixel_length
-        # y *= self.pixel_length
-        # self.canvas.create_rectangle(x, self.widget_height - y,
-        #                              x + self.pixel_length, self.widget_height - y - self.pixel_length,
-        #                              fill=color)
         x *= self.pixel_length
         y *= self.pixel_length
         self.canvas.create_rectangle(x, y, x + self.pixel_length, y + self.pixel_length, fill=color)
@@ -96,7 +91,6 @@ class GUI:
             for y in range(self.height):
                 # Wall from the map
                 if self.game.grid[x, y] == 1:
-                    print("GRAY")
                     self.draw_case(x, y, "gray")
                 # Wall from the player 1
                 elif self.game.grid[x, y] == 2:
@@ -117,4 +111,4 @@ class GUI:
         info_2 = f"SCORE PLAYER 2 : {self.game.player_2.score}"
 
         self.canvas.create_text(80, 13, font='Helvetica 12 bold', fill='red', text=info_1)
-        self.canvas.create_text(410, 13, font='Helvetica 12 bold', fill='blue', text=info_2)
+        self.canvas.create_text(300, 13, font='Helvetica 12 bold', fill='blue', text=info_2)
