@@ -1,18 +1,31 @@
 """ Manage all the features related to the Game """
 
+import numpy as np
+
 
 class Game:
-    def __init__(self, Width, Height, Player1, Player2):
-        self.Grid = self.init_grid(Width, Height)
-        self.player1 = Player1
-        self.player2 = Player2
+    def __init__(self, width: int, height: int, player_1, player_2) -> None:
+        """
+        :param width: to define the width of the grid
+        :param height: to define the height of the grid
+        :param player_1: play the game as player 1
+        :param player_2: play the game as player 2
+        """
+        self.width, self.height = width, height
+        self.grid = self.init_grid(self.width, self.height)
+        self.player_1 = player_1
+        self.player_2 = player_2
+        self.winner = None
 
-    def init_grid(self, x, y) -> list:
+    @staticmethod
+    def init_grid(x: int, y: int) -> np.ndarray:
         """
-        Initialize the Grid
-        :param x: height of the grid (int)
-        :param y: width of the grid (int)
-        :return: list of 0 except for the borders (width * height)
+        Initialize the Grid. The borders values are filled with 1 and 0 for the remaining ones
+        :param x: height of the grid
+        :param y: width of the grid
+        :return: numpy array
         """
-        self.Grid = [[1 if i == 0 or i == y - 1 or j == 0 or j == x - 1
-                      else 0 for j in range(x)] for i in range(y)]
+        grid = [[1 if i == 0 or i == y - 1 or j == 0 or j == x - 1 else 0 for j in range(x)] for i in range(y)]
+
+        return np.flip(np.array(grid, dtype=np.int8), axis=0).transpose()
+
