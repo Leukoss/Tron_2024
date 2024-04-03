@@ -47,6 +47,32 @@ class Game:
 
         return grid
 
+    @staticmethod
+    def evaluate_board(grid: np.array, player_1: Player,
+                       player_2: Player) -> int:
+        """
+        Evaluate the board bases on the player_1 (if player 2 loses, points are
+        increasing, while decreasing when player 2 wins)
+        :param grid: board of the game to evaluate
+        :param player_1: player evaluated
+        :param player_2: player to define the scoring for player_1
+        :return: score_board of the game for player_1
+        """
+        score_board = 0
+
+        # If the opponent has won
+        if player_1.dead and not player_2.dead:
+            score_board -= 100
+            # If the player has won
+        elif not player_1.dead and player_2.dead:
+            score_board += 100
+        # In case of a draw (both dead or both alive)
+        if ((player_1.dead and player_2.dead) or
+                (not player_1.dead and not player_2.dead)):
+            score_board -= 50
+
+        return score_board
+
     def get_allowed_moves(self, player: Player) -> list[tuple[int, int]]:
         """
         Assign the new allowed moves to the player according to its current
@@ -87,7 +113,7 @@ class Game:
 
         return random.choice(allowed_moves)
 
-    def move_players(self, player_1: Player, player_2: Player):
+    def move_players(self, player_1: Player, player_2: Player) -> None:
         """
         Apply a movement to all the players based on their allowed moves
         :player_1: a player of the game
@@ -102,7 +128,7 @@ class Game:
             print(f'Player {i} next position :', player.x, player.y)
             self.grid[player.x, player.y] = i + 1
 
-    def check_end_game(self, player_1: Player, player_2: Player):
+    def check_end_game(self, player_1: Player, player_2: Player) -> None:
         """
         Check if a player is dead
         :player_1: a player of the game
@@ -112,3 +138,93 @@ class Game:
             self.winner = 2
         elif player_2.dead:
             self.winner = 1
+
+    def check_alive(self, player: Player) -> None:
+        """
+        Check if a player is alive (in other terms, the player can still move)
+        :param player: of the Game
+        """
+        if len(self.get_allowed_moves(player)) == 0:
+            player.dead = True
+
+    def minimax(self, depth: int, maximizing_player: Player,
+                minimizing_player: Player, maximizing_player_1=True) \
+            -> tuple[int, tuple[int, int]]:
+        """
+        Use the minimax algorithm to explore a tree and select the best output
+        :param depth: of the tree for the minimax algorithm
+        :param maximizing_player: player to maximize the score
+        :param minimizing_player: player to minimize the score
+        :param maximizing_player_1: maximize the score of the player 1
+        :return: tuple of integer and tuple of integers (a, (i, j)) representing
+         the best move, where:
+                 - a represent the score_board of the current state
+                 - i represents the new position along the x-axis
+                 - j represents the new position along the y-axis
+        """
+        # We check if the players should be alive or not
+        self.check_alive(maximizing_player)
+        self.check_alive(minimizing_player)
+
+        # As we use this function recursively, we need to check the end game
+        # condition. It will change 'winner' attribute if the game is over
+        self.check_end_game(maximizing_player, minimizing_player)
+
+        # We define the base case when the max depth is reached/game is over
+        if depth == 0 or self.winner is not None:
+            return self.evaluate_board(self.grid, maximizing_player,
+                                       minimizing_player), None
+
+        best_move = None
+
+        # In the case we need to maximize the score of the maximizing_player
+        if maximizing_player:
+            # As we maximize, we start from -inf
+            best_score = float('-inf')
+
+            # We retrieve all the possible moves
+            possible_moves = self.get_allowed_moves(maximizing_player)
+
+            # We explore the nodes from the current state
+            for move in possible_moves:
+                # We assign a new position to the maximizing_player
+                maximizing_player.apply_move(move)
+
+                score = self.minimax(depth - 1, maximizing_player,
+                                     minimizing_player, not maximizing_player_1)
+
+                # We assign the oldest position to the maximizing_player to
+                # explore the other branch
+                maximizing_player.undo_move(move)
+
+                # In case the score is superior to the best one we keep it
+                if score > best_score:
+                    best_score = score
+                    best_move = move
+        # In the case we need to minimize the score of the minimizing_player
+        else:
+            # As we minimize, we start from inf
+            best_score = float('inf')
+
+            # We retrieve all the possible moves
+            possible_moves = self.get_allowed_moves(minimizing_player)
+
+            # We explore the nodes from the current state
+            for move in possible_moves:
+                # We assign a new position to the minimizing_player
+                minimizing_player.apply_move(move)
+
+                # We generate the score for this new branch
+                score = self.minimax(depth - 1, maximizing_player,
+                                     minimizing_player, not maximizing_player_1)
+
+                # We assign the oldest position to the minimizing_player to
+                # explore the other branch
+                minimizing_player.undo_move(move)
+
+                # In case the score is inferior to the best one we keep it
+                if score < best_score:
+                    best_score = score
+                    best_move = move
+
+        return best_score, best_move
