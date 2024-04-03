@@ -112,3 +112,14 @@ class GUI:
 
         self.canvas.create_text(80, 13, font='Helvetica 12 bold', fill='red', text=info_1)
         self.canvas.create_text(300, 13, font='Helvetica 12 bold', fill='blue', text=info_2)
+
+    def update_game(self):
+        """
+        Update the window after each move
+        """
+        self.get_height_widget()
+        self.display()
+        self.display_score()
+        self.game.move_players(self.game.player_1, self.game.player_2)
+        # self.game.check_end_game(self.game.player_1, self.game.player_2)
+        self.window.after(100, self.update_game)  # Call update_game every 100 milliseconds

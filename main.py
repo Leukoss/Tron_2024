@@ -28,9 +28,9 @@ gui = GUI(GAME)
 
 # Initialize GUI components
 gui.init_gui()
-gui.get_height_widget()
-gui.display()
-gui.display_score()
+
+# Start the game loop
+gui.update_game()
 
 # Display GUI
 gui.window.mainloop()

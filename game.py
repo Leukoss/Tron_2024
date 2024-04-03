@@ -33,7 +33,7 @@ class Game:
 
         return grid
 
-    def allowed_move(self, player: Player) -> list[tuple[int, int]]:
+    def get_allowed_moves(self, player: Player) -> list[tuple[int, int]]:
         """
         Assign the new allowed moves to the player according to its current position
         :param player: of the game
@@ -41,7 +41,7 @@ class Game:
                  - i represents the change in position along the x-axis.
                  - j represents the change in position along the y-axis.
         """
-        allowed_move = []
+        allowed_moves = []
 
         # Up : (0, -1), Down : (0, 1), Right : (1, 0), Left  : (-1, 0)
         possible_moves = [(0, -1), (0, 1), (1, 0), (-1, 0)]
@@ -49,10 +49,10 @@ class Game:
         # For each possible moves, we check the availability of the case
         for dx, dy in possible_moves:
             new_x, new_y = player.x + dx, player.y + dy
-            if self.grid[new_x][new_y] == 0:
-                allowed_move.append((new_x, new_y))
+            if 1 <= new_x < self.width and 1 <= new_y < self.height and self.grid[new_x, new_y] == 0:
+                allowed_moves.append((dx, dy))
 
-        return allowed_move
+        return allowed_moves
 
     def random_move(self, player: Player) -> tuple[int, int]:
         """
@@ -62,10 +62,50 @@ class Game:
                  - i represents the change in position along the x-axis.
                  - j represents the change in position along the y-axis.
         """
-        allowed_move = self.allowed_move(player)
+        allowed_moves = self.get_allowed_moves(player)
 
-        # In case there is no allowed move, we redefine allowed_move with the default case
-        if len(allowed_move) == 0:
-            allowed_move = [(0, -1), (0, 1), (1, 0), (-1, 0)]
+        # In case there is no allowed move, we redefine allowed_moves with the default case
+        if len(allowed_moves) == 0:
+            player.dead=True
+            return (0, 0)
 
-        return allowed_move[random.randrange(len(allowed_move))]
+        return allowed_moves[random.randrange(len(allowed_moves))]
+
+    def move_players(self, player_1: Player, player_2: Player):
+        """
+        Apply a movement to all the players based on their allowed moves
+        :player_1: a player of the game
+        :player_2: a player of the game
+        """
+        players = [player_1, player_2]
+        for i in range(len(players)):
+            next_move = self.random_move(players[i])
+            print(f"Player {i+1} next move:", next_move)
+            print(f"Player {i+1} current position:", players[i].x, players[i].y)
+            players[i].apply_move(next_move)
+            print(f"Player {i+1} next position:", players[i].x, players[i].y)
+            self.grid[players[i].x, players[i].y] = i + 2
+
+
+    def check_end_game(self, player_1: Player, player_2: Player):
+        """
+        Check if a player is dead
+        :player_1: a player of the game
+        :player_2: a player of the game
+        """
+        #####################################
+        #### A adapter si + de 2 joueurs (c'est juste l'idée : utiliser des listes de joueurs) ####
+        # players = [player_1, player_2]
+        # # number_of_players = len(players)
+        # # dead_players = []
+        # for player in players:
+        #     if player.dead == True:
+        #         self.winner=True
+        #####################################
+        if player_1.dead == True:
+            self.winner = 2
+        if player_2.dead == True:
+            self.winner = 1
+
+        # La fonction n'est pas encore utilisée mais permettra de définir le gagnant
+        # Pour le moment le jeu ne s'arrete pas. Simplement les joueurs ne se déplacent plus lorsqu'ils n'ont plus d'options (voir lignes 68-70)
