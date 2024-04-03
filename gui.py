@@ -1,10 +1,31 @@
-""" Manage all the features related to the Graphical User Interface (GUI)"""
+""" Manage all the features related to the Graphical User Interface (GUI) for
+the Tron Game """
 
 import tkinter as tk
 from game import Game
 
 
 class GUI:
+    """
+    A class for managing the Graphical User Interface (GUI) of the Tron game.
+
+    Attributes:
+        game (Game): An instance of the Game class representing the current game
+         state.
+        pixel_length (int): The length of a single pixel in the GUI.
+        width (int): The width of the game grid.
+        height (int): The height of the game grid.
+        width_pixel (int): The width of the GUI window in pixels.
+        height_pixel (int): The height of the GUI window in pixels.
+        frame (tk.Frame): The main frame of the GUI.
+        window (tk.Tk): The main window of the GUI.
+        canvas (tk.Canvas): The canvas used for drawing the game board and
+         players.
+        dict_pages (dict): A dictionary storing pages of the GUI.
+        current_page (int): The index of the current page being displayed.
+        widget_height (int): The height of the canvas widget in pixels.
+    """
+
     def __init__(self, game: Game, pixel_length=20) -> None:
         """
         Initialize the GUI
@@ -14,11 +35,13 @@ class GUI:
         self.game = game
         self.pixel_length = pixel_length
         self.width, self.height = game.width, game.height
-        self.width_pixel, self.height_pixel = self.width * self.pixel_length, self.height * self.pixel_length
-        self.dict_pages, self.current_page = {}, 0
-        self.window = None
+        self.width_pixel = self.width * self.pixel_length
+        self.height_pixel = self.height * self.pixel_length
         self.frame = None
+        self.window = None
         self.canvas = None
+        self.dict_pages = {}
+        self.current_page = 0
         self.widget_height = None
 
     def create_page(self, id_page: int, frame: tk.Frame) -> tk.Frame:
@@ -30,7 +53,7 @@ class GUI:
         """
         frame_page = tk.Frame(frame)
         self.dict_pages[id_page] = frame_page
-        frame_page.grid(row=0, column=0, sticky="nsew")
+        frame_page.grid(row=0, column=0, sticky='nsew')
         return frame_page
 
     def display_page(self, id_page: int) -> None:
@@ -48,7 +71,7 @@ class GUI:
         """
         # Define the attribute of the window
         self.window = tk.Tk()
-        self.window.geometry(str(self.width_pixel) + "x" + str(self.height_pixel))
+        self.window.geometry(str(self.width_pixel) + 'x' + str(self.height_pixel))
         self.window.title("Tron Game")
 
         # Creation of the frame stocking all the pages
@@ -60,7 +83,8 @@ class GUI:
         # Initialize the first page
         frame_0 = self.create_page(id_page=0, frame=self.frame)
 
-        self.canvas = tk.Canvas(frame_0, width=self.width_pixel, height=self.height_pixel, bg="Black")
+        self.canvas = tk.Canvas(frame_0, width=self.width_pixel,
+                                height=self.height_pixel, bg='Black')
         self.canvas.place(x=0, y=0)
 
     def draw_case(self, x: int, y: int, color: str) -> None:
@@ -72,7 +96,8 @@ class GUI:
         """
         x *= self.pixel_length
         y *= self.pixel_length
-        self.canvas.create_rectangle(x, y, x + self.pixel_length, y + self.pixel_length, fill=color)
+        self.canvas.create_rectangle(x, y, x + self.pixel_length,
+                                     y + self.pixel_length, fill=color)
 
     def get_height_widget(self) -> None:
         """
@@ -82,7 +107,8 @@ class GUI:
 
     def display(self) -> None:
         """
-        Display the map with walls (from both map and players) and players motorbike
+        Display the map with walls (from both map and players) and players
+        motorbike
         """
         self.canvas.delete("all")
 
@@ -107,19 +133,21 @@ class GUI:
         """
         Display the score of both players
         """
-        info_1 = f"SCORE PLAYER 1 : {self.game.player_1.score}"
-        info_2 = f"SCORE PLAYER 2 : {self.game.player_2.score}"
+        if self.game.winner is None:
+            info = "Winner is not defined yet"
+        else:
+            info = f"The Winner ID is : Player {self.game.winner}"
 
-        self.canvas.create_text(80, 13, font='Helvetica 12 bold', fill='red', text=info_1)
-        self.canvas.create_text(300, 13, font='Helvetica 12 bold', fill='blue', text=info_2)
+        self.canvas.create_text(80, 13, font='Helvetica 12 bold', fill='red',
+                                text=info)
 
     def update_game(self):
         """
         Update the window after each move
         """
-        self.get_height_widget()
         self.display()
         self.display_score()
         self.game.move_players(self.game.player_1, self.game.player_2)
         # self.game.check_end_game(self.game.player_1, self.game.player_2)
-        self.window.after(100, self.update_game)  # Call update_game every 100 milliseconds
+        # Call update_game every 100 milliseconds
+        self.window.after(100, self.update_game)
