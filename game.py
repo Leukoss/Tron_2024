@@ -96,10 +96,10 @@ class Game:
         players = [player_1, player_2]
         for i, player in enumerate(players, start=1):
             next_move = self.random_move(player)
-            print(f"Player {i} next move:", next_move)
-            print(f"Player {i} current position:", player.x, player.y)
+            print(f'Player {i} next move :', next_move)
+            print(f'Player {i} current position :', player.x, player.y)
             player.apply_move(next_move)
-            print(f"Player {i} next position:", player.x, player.y)
+            print(f'Player {i} next position :', player.x, player.y)
             self.grid[player.x, player.y] = i + 1
 
     def check_end_game(self, player_1: Player, player_2: Player):

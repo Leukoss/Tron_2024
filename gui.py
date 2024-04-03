@@ -72,11 +72,11 @@ class GUI:
         # Define the attribute of the window
         self.window = tk.Tk()
         self.window.geometry(str(self.width_pixel) + 'x' + str(self.height_pixel))
-        self.window.title("Tron Game")
+        self.window.title('Tron Game')
 
         # Creation of the frame stocking all the pages
         self.frame = tk.Frame(self.window)
-        self.frame.pack(side="top", fill="both", expand=True)
+        self.frame.pack(side='top', fill='both', expand=True)
         self.frame.grid_rowconfigure(0, weight=1)
         self.frame.grid_columnconfigure(0, weight=1)
 
@@ -110,33 +110,33 @@ class GUI:
         Display the map with walls (from both map and players) and players
         motorbike
         """
-        self.canvas.delete("all")
+        self.canvas.delete('all')
 
         # Display the map
         for x in range(self.width):
             for y in range(self.height):
                 # Wall from the map
                 if self.game.grid[x, y] == 1:
-                    self.draw_case(x, y, "gray")
+                    self.draw_case(x, y, 'gray')
                 # Wall from the player 1
                 elif self.game.grid[x, y] == 2:
-                    self.draw_case(x, y, "orange")
+                    self.draw_case(x, y, 'orange')
                 # Wall from the player 2
                 elif self.game.grid[x, y] == 3:
-                    self.draw_case(x, y, "green")
+                    self.draw_case(x, y, 'green')
 
         # Display both players
-        self.draw_case(self.game.player_1.x, self.game.player_1.y, "red")
-        self.draw_case(self.game.player_2.x, self.game.player_2.y, "blue")
+        self.draw_case(self.game.player_1.x, self.game.player_1.y, 'red')
+        self.draw_case(self.game.player_2.x, self.game.player_2.y, 'blue')
 
     def display_score(self) -> None:
         """
         Display the score of both players
         """
         if self.game.winner is None:
-            info = "Winner is not defined yet"
+            info = 'Winner is not defined yet'
         else:
-            info = f"The Winner ID is : Player {self.game.winner}"
+            info = f'The Winner ID is : Player {self.game.winner}'
 
         self.canvas.create_text(80, 13, font='Helvetica 12 bold', fill='red',
                                 text=info)
