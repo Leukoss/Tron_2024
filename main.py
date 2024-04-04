@@ -6,7 +6,7 @@ from game import Game
 from player import Player
 
 # Define the width and height of the grid
-WIDTH, HEIGHT = 20, 40
+WIDTH, HEIGHT = 10, 20
 
 # Initialize the (x,y) for each player
 X_PLAYER1, X_PLAYER2 = 0, 0

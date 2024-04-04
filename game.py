@@ -2,6 +2,7 @@
 
 import random
 import numpy as np
+from queue import Queue
 from player import Player
 
 
@@ -48,7 +49,77 @@ class Game:
         return grid
 
     @staticmethod
-    def evaluate_board(grid: np.array, player_1: Player,
+    def is_path_between_players(grid: np.array, player_1: Player,
+                                player_2: Player) -> bool:
+        """
+        Check if a path is available between two players through BFS algorithm
+        :param grid: numpy array with obstacles and empty case
+        :param player_1: of the game
+        :param player_2: of the game
+        :return: the truth of "there is a path between the players"
+        """
+        # Initialize visited array to keep track of visited cells
+        visited = np.zeros_like(grid, dtype=bool)
+
+        def dfs(x: int, y: int, visited_count: int):
+            visited[x, y] = True
+            visited_count += 1
+
+            if (x, y) == (player_2.x, player_2.y):
+                return True
+
+            for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
+                new_x, new_y = x + dx, y + dy
+                if grid[x, y] == 0 and not visited[new_x, new_y]:
+                    if dfs(new_x, new_y, visited_count):
+                        return True
+
+            return False
+
+        return dfs(player_1.x, player_1.y, 0)
+
+    @staticmethod
+    def count_free_spaces(grid: np.array, player: Player) -> int:
+        """
+        Count the number of free spaces for a player enclosed
+        :param grid: of the game
+        :param player: of the game
+        :return: int of free cases for the player
+        """
+        # Initialize visited array to keep track of visited cells
+        visited = np.zeros_like(grid, dtype=bool)
+
+        # Initialize a queue for BFS
+        queue = Queue()
+        queue.put((player.x, player.y))
+
+        free_spaces = 0
+
+        # Perform BFS
+        while not queue.empty():
+            x, y = queue.get()
+
+            # If the current cell is already visited, continue to the next cell
+            if visited[x, y]:
+                continue
+
+            visited[x, y] = True
+
+            # Increment the count of free spaces
+            free_spaces += 1
+
+            # Check adjacent cells
+            for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
+                new_x, new_y = x + dx, y + dy
+                if ((1 <= new_x < grid.shape[0] - 1 and
+                    1 <= new_y < grid.shape[1] - 1 and
+                    grid[new_x, new_y] == 0) and
+                        not visited[new_x, new_y]):
+                    queue.put((new_x, new_y))
+
+        return free_spaces
+
+    def evaluate_board(self, grid: np.array, player_1: Player,
                        player_2: Player) -> int:
         """
         Evaluate the board bases on the player_1 (if player 2 loses, points are
@@ -70,6 +141,20 @@ class Game:
         if ((player_1.dead and player_2.dead) or
                 (not player_1.dead and not player_2.dead)):
             score_board -= 50
+
+        # If both players have a wall to separate them
+        if not self.is_path_between_players(grid, player_1, player_2):
+            # We retrieve the number of cases available for each
+            player_1_cases = self.count_free_spaces(grid, player_1)
+            player_2_cases = self.count_free_spaces(grid, player_2)
+
+            # If player_1 has more mobility then he earns points
+            if player_1_cases > player_2_cases:
+                score_board += 200
+            elif player_2_cases > player_1_cases:
+                score_board += 200
+            elif player_1_cases == player_2_cases:
+                score_board -= 100
 
         return score_board
 
@@ -120,13 +205,23 @@ class Game:
         :player_2: a player of the game
         """
         players = [player_1, player_2]
+
         for i, player in enumerate(players, start=1):
-            next_move = self.random_move(player)
+            player_max = player
+            player_min = [player for player in players
+                          if player != player_max][0]
+
+            _, next_move = self.minimax(depth=3,
+                                        maximizing_player=player_max,
+                                        minimizing_player=player_min,
+                                        maximizing_player_1=True
+                                        )
+
             print(f'Player {i} next move :', next_move)
             print(f'Player {i} current position :', player.x, player.y)
-            player.apply_move(next_move)
+            player_max.apply_move(next_move)
             print(f'Player {i} next position :', player.x, player.y)
-            self.grid[player.x, player.y] = i + 1
+            self.grid[player_max.x, player_max.y] = i + 1
 
     def check_end_game(self, player_1: Player, player_2: Player) -> None:
         """
@@ -173,7 +268,7 @@ class Game:
         # We define the base case when the max depth is reached/game is over
         if depth == 0 or self.winner is not None:
             return self.evaluate_board(self.grid, maximizing_player,
-                                       minimizing_player), None
+                                       minimizing_player), (0, 0)
 
         best_move = None
 
@@ -190,8 +285,9 @@ class Game:
                 # We assign a new position to the maximizing_player
                 maximizing_player.apply_move(move)
 
-                score = self.minimax(depth - 1, maximizing_player,
-                                     minimizing_player, not maximizing_player_1)
+                score, _ = self.minimax(depth - 1, maximizing_player,
+                                        minimizing_player,
+                                        not maximizing_player_1)
 
                 # We assign the oldest position to the maximizing_player to
                 # explore the other branch
@@ -215,8 +311,10 @@ class Game:
                 minimizing_player.apply_move(move)
 
                 # We generate the score for this new branch
-                score = self.minimax(depth - 1, maximizing_player,
-                                     minimizing_player, not maximizing_player_1)
+                score, _ = self.minimax(depth - 1,
+                                        maximizing_player,
+                                        minimizing_player,
+                                        not maximizing_player_1)
 
                 # We assign the oldest position to the minimizing_player to
                 # explore the other branch

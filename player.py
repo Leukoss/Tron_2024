@@ -40,7 +40,8 @@ class Player:
     def undo_move(self, picked_move: tuple[int, int]) -> None:
         """
         Allow to undo a move (used in minimax algorithm) to the Player
-        :param picked_move: tuple of integers (i, j) representing the new move, where:
+        :param picked_move: tuple of integers (i, j) representing the new move,
+        where:
                  - i represents the new position along the x-axis.
                  - j represents the new position along the y-axis.
         """

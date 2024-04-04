@@ -148,6 +148,4 @@ class GUI:
         self.display()
         self.display_score()
         self.game.move_players(self.game.player_1, self.game.player_2)
-        # self.game.check_end_game(self.game.player_1, self.game.player_2)
-        # Call update_game every 100 milliseconds
         self.window.after(100, self.update_game)
