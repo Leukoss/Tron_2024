@@ -116,13 +116,13 @@ class GUI:
         for x in range(self.width):
             for y in range(self.height):
                 # Wall from the map
-                if self.game.grid[x, y] == 1:
+                if self.game.grid[x, y] == -1:
                     self.draw_case(x, y, 'grey')
                 # Wall from the player 1
-                elif self.game.grid[x, y] == 2:
+                elif self.game.grid[x, y] == 1:
                     self.draw_case(x, y, self.game.player_1.wall_color)
                 # Wall from the player 2
-                elif self.game.grid[x, y] == 3:
+                elif self.game.grid[x, y] == 2:
                     self.draw_case(x, y, self.game.player_2.wall_color)
 
         # Display both players

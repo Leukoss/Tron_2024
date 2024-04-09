@@ -29,13 +29,13 @@ class Game:
         :param player_2: play the game as player 2
         """
         self.width, self.height = width, height
-        self.grid = self.init_grid(self.width, self.height)
         self.player_1 = player_1
         self.player_2 = player_2
+        self.grid = self.init_grid(self.width, self.height, player_1, player_2)
         self.winner = None
 
     @staticmethod
-    def init_grid(x: int, y: int) -> np.ndarray:
+    def init_grid(x: int, y: int, player_1: Player, player_2: Player) -> np.ndarray:
         """
         Initialize the Grid. The borders values are filled with 1 and 0 for the
         remaining ones
@@ -43,8 +43,10 @@ class Game:
         :param y: width of the grid
         :return: numpy array
         """
-        grid = np.ones((x, y), dtype=np.int8)
+        grid = np.ones((x, y), dtype=np.int8)*(-1)
         grid[1:-1, 1:-1] = 0
+        grid[player_1.x, player_1.y] = 1
+        grid[player_2.x, player_2.y] = 2
 
         return grid
 
@@ -200,7 +202,7 @@ class Game:
             print(f'Player {i} current position :', player.x, player.y)
             player_max.apply_move(next_move)
             print(f'Player {i} next position :', player.x, player.y)
-            self.grid[player_max.x, player_max.y] = i + 1
+            self.grid[player_max.x, player_max.y] = i
 
     def check_end_game(self, player_1: Player, player_2: Player) -> None:
         """

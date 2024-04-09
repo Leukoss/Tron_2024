@@ -22,7 +22,7 @@ while (X_PLAYER1, Y_PLAYER1) == (X_PLAYER2, Y_PLAYER2):
 
 # Create players
 PLAYER1 = Player(x=X_PLAYER1, y=Y_PLAYER1, color='red', wall_color='orange')
-PLAYER2 = Player(x=X_PLAYER2, y=Y_PLAYER2, color='blue', wall_color='green')
+PLAYER2 = Player(x=X_PLAYER2, y=Y_PLAYER2, color='blue', wall_color='cyan')
 
 # Create Game and GUI
 GAME = Game(width=WIDTH, height=HEIGHT, player_1=PLAYER1, player_2=PLAYER2)
