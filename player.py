@@ -13,7 +13,7 @@ class Player:
         score (int): The score of the player, used for decision-making.
     """
 
-    def __init__(self, x: int, y: int, color: str, score=0, ai: bool = True):
+    def __init__(self, x: int, y: int, color: str, wall_color: str, score=0, ai: bool = True):
         """
         Initialize the Player object
         :param x: position of the player in abs
@@ -27,6 +27,7 @@ class Player:
         self.dead = False
         self.score = score
         self.color = color
+        self.wall_color = wall_color
 
     def apply_move(self, picked_move: tuple[int, int]) -> None:
         """

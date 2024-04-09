@@ -117,19 +117,17 @@ class GUI:
             for y in range(self.height):
                 # Wall from the map
                 if self.game.grid[x, y] == 1:
-                    self.draw_case(x, y, 'gray')
+                    self.draw_case(x, y, 'grey')
                 # Wall from the player 1
                 elif self.game.grid[x, y] == 2:
-                    self.draw_case(x, y, 'orange')
+                    self.draw_case(x, y, self.game.player_1.wall_color)
                 # Wall from the player 2
                 elif self.game.grid[x, y] == 3:
-                    self.draw_case(x, y, 'green')
+                    self.draw_case(x, y, self.game.player_2.wall_color)
 
         # Display both players
-        self.draw_case(self.game.player_1.x, self.game.player_1.y,
-                       self.game.player_1.color)
-        self.draw_case(self.game.player_2.x, self.game.player_2.y,
-                       self.game.player_2.color)
+        self.draw_case(self.game.player_1.x, self.game.player_1.y, self.game.player_1.color)
+        self.draw_case(self.game.player_2.x, self.game.player_2.y, self.game.player_2.color)
 
     def display_score(self) -> None:
         """
@@ -138,27 +136,16 @@ class GUI:
         if self.game.winner is None:
             info = 'Winner is not defined yet'
         else:
-            info = f'The Winner ID is : Player {self.game.winner}'
+            info = f'The Winner is : Player {self.game.winner.color}'
 
-        if self.game.winner == 1:
-            color = self.game.player_1.color
-        else:
-            color = self.game.player_2.color
-
-        self.canvas.create_text(80, 13, font='Helvetica 12 bold', fill=color,
+        self.canvas.create_text(80, 13, font='Helvetica 12 bold', fill=self.game.winner.color if self.game.winner is not None else 'white',
                                 text=info)
 
     def update_game(self):
         """
         Update the window after each move
         """
-        if self.game.winner is None:
-            self.display()
-            self.display_score()
-            self.game.move_players(self.game.player_1, self.game.player_2)
-            self.window.after(100, self.update_game)
-        else:
-            self.display()
-            self.display_score()
-            self.game.move_players(self.game.player_1, self.game.player_2)
-            self.window.after(100, self.update_game)
+        self.display()
+        self.display_score()
+        self.game.move_players(self.game.player_1, self.game.player_2)
+        self.window.after(100, self.update_game)

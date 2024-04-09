@@ -209,9 +209,9 @@ class Game:
         :player_2: a player of the game
         """
         if player_1.dead:
-            self.winner = 2
+            self.winner = player_2
         elif player_2.dead:
-            self.winner = 1
+            self.winner = player_1
 
     def check_alive(self, player: Player) -> None:
         """
