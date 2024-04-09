@@ -126,8 +126,10 @@ class GUI:
                     self.draw_case(x, y, 'green')
 
         # Display both players
-        self.draw_case(self.game.player_1.x, self.game.player_1.y, 'red')
-        self.draw_case(self.game.player_2.x, self.game.player_2.y, 'blue')
+        self.draw_case(self.game.player_1.x, self.game.player_1.y,
+                       self.game.player_1.color)
+        self.draw_case(self.game.player_2.x, self.game.player_2.y,
+                       self.game.player_2.color)
 
     def display_score(self) -> None:
         """
@@ -138,14 +140,25 @@ class GUI:
         else:
             info = f'The Winner ID is : Player {self.game.winner}'
 
-        self.canvas.create_text(80, 13, font='Helvetica 12 bold', fill='red',
+        if self.game.winner == 1:
+            color = self.game.player_1.color
+        else:
+            color = self.game.player_2.color
+
+        self.canvas.create_text(80, 13, font='Helvetica 12 bold', fill=color,
                                 text=info)
 
     def update_game(self):
         """
         Update the window after each move
         """
-        self.display()
-        self.display_score()
-        self.game.move_players(self.game.player_1, self.game.player_2)
-        self.window.after(100, self.update_game)
+        if self.game.winner is None:
+            self.display()
+            self.display_score()
+            self.game.move_players(self.game.player_1, self.game.player_2)
+            self.window.after(100, self.update_game)
+        else:
+            self.display()
+            self.display_score()
+            self.game.move_players(self.game.player_1, self.game.player_2)
+            self.window.after(100, self.update_game)

@@ -61,9 +61,8 @@ class Game:
         # Initialize visited array to keep track of visited cells
         visited = np.zeros_like(grid, dtype=bool)
 
-        def dfs(x: int, y: int, visited_count: int):
+        def dfs(x: int, y: int):
             visited[x, y] = True
-            visited_count += 1
 
             if (x, y) == (player_2.x, player_2.y):
                 return True
@@ -71,12 +70,11 @@ class Game:
             for dx, dy in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
                 new_x, new_y = x + dx, y + dy
                 if grid[x, y] == 0 and not visited[new_x, new_y]:
-                    if dfs(new_x, new_y, visited_count):
-                        return True
+                    dfs(new_x, new_y)
 
             return False
 
-        return dfs(player_1.x, player_1.y, 0)
+        return dfs(player_1.x, player_1.y)
 
     @staticmethod
     def count_free_spaces(grid: np.array, player: Player) -> int:
@@ -138,8 +136,7 @@ class Game:
         elif not player_1.dead and player_2.dead:
             score_board += 100
         # In case of a draw (both dead or both alive)
-        if ((player_1.dead and player_2.dead) or
-                (not player_1.dead and not player_2.dead)):
+        if player_1.dead and player_2.dead:
             score_board -= 50
 
         # If both players have a wall to separate them
@@ -150,11 +147,11 @@ class Game:
 
             # If player_1 has more mobility then he earns points
             if player_1_cases > player_2_cases:
-                score_board += 200
+                score_board += 25 * player_1_cases
             elif player_2_cases > player_1_cases:
-                score_board += 200
+                score_board -= 25 * player_2_cases
             elif player_1_cases == player_2_cases:
-                score_board -= 100
+                score_board -= 50
 
         return score_board
 
@@ -179,24 +176,6 @@ class Game:
                              self.grid[x + dx, y + dy] == 0)]
 
         return allowed_moves
-
-    def random_move(self, player: Player) -> tuple[int, int]:
-        """
-        Assign the new random moves to the player according to its current
-        position
-        :param player: of the game
-        :return: A tuple of integers (i, j) representing the random move, where:
-                 - i represents the change in position along the x-axis.
-                 - j represents the change in position along the y-axis.
-        """
-        allowed_moves = self.get_allowed_moves(player)
-
-        # When the player has no allowed move remaining, it means he is dead
-        if len(allowed_moves) == 0:
-            player.dead = True
-            return 0, 0
-
-        return random.choice(allowed_moves)
 
     def move_players(self, player_1: Player, player_2: Player) -> None:
         """
@@ -273,7 +252,7 @@ class Game:
         best_move = None
 
         # In the case we need to maximize the score of the maximizing_player
-        if maximizing_player:
+        if maximizing_player_1:
             # As we maximize, we start from -inf
             best_score = float('-inf')
 
