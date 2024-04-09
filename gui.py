@@ -71,7 +71,8 @@ class GUI:
         """
         # Define the attribute of the window
         self.window = tk.Tk()
-        self.window.geometry(str(self.width_pixel) + 'x' + str(self.height_pixel))
+        self.window.geometry(str(self.width_pixel) + 'x' +
+                             str(self.height_pixel))
         self.window.title('Tron Game')
 
         # Creation of the frame stocking all the pages
@@ -126,8 +127,10 @@ class GUI:
                     self.draw_case(x, y, self.game.player_2.wall_color)
 
         # Display both players
-        self.draw_case(self.game.player_1.x, self.game.player_1.y, self.game.player_1.color)
-        self.draw_case(self.game.player_2.x, self.game.player_2.y, self.game.player_2.color)
+        self.draw_case(self.game.player_1.x, self.game.player_1.y,
+                       self.game.player_1.color)
+        self.draw_case(self.game.player_2.x, self.game.player_2.y,
+                       self.game.player_2.color)
 
     def display_score(self) -> None:
         """
@@ -138,7 +141,10 @@ class GUI:
         else:
             info = f'The Winner is : Player {self.game.winner.color}'
 
-        self.canvas.create_text(80, 13, font='Helvetica 12 bold', fill=self.game.winner.color if self.game.winner is not None else 'white',
+        color = self.game.winner.color if self.game.winner is not None else \
+            'white'
+
+        self.canvas.create_text(80, 13, font='Helvetica 12 bold', fill=color,
                                 text=info)
 
     def update_game(self):

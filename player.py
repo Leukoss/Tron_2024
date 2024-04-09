@@ -13,7 +13,8 @@ class Player:
         score (int): The score of the player, used for decision-making.
     """
 
-    def __init__(self, x: int, y: int, color: str, wall_color: str, score=0, ai: bool = True):
+    def __init__(self, x: int, y: int, color: str, wall_color: str, score=0,
+                 ai: bool = True):
         """
         Initialize the Player object
         :param x: position of the player in abs
