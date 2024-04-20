@@ -134,12 +134,19 @@ class Game:
         # If the opponent has won
         if player_1.dead and not player_2.dead:
             score_board -= 100
+            # Lose even more points if the player has been killed by the other player
+            if self.got_killed_by_other_player(player_1):
+                score_board -= 500
             # If the player has won
         elif not player_1.dead and player_2.dead:
             score_board += 100
-        # In case of a draw (both dead or both alive)
+            # Win even more points if the player killed the other player
+            if self.got_killed_by_other_player(player_2):
+                score_board += 500
+        # In case of a draw (both dead)
         if player_1.dead and player_2.dead:
             score_board -= 50
+
 
         # If both players have a wall to separate them
         if not self.is_path_between_players(grid, player_1, player_2):
@@ -179,6 +186,27 @@ class Game:
 
         return allowed_moves
 
+    def got_killed_by_other_player(self, player: Player) -> bool:
+        """
+        Check if the player has been killed by the other player
+        :param player: of the game
+        :return: the truth of "the player has been killed by the other player"
+        """
+        killed_by_other = False
+        allowed_moves = self.get_allowed_moves(player)
+        if len(allowed_moves) != 0:
+            return killed_by_other
+
+        for move in [(0, -1), (0, 1), (1, 0), (-1, 0)]:
+            player.apply_move(move)
+            # If one at least one of the neighbor cell is the other player's wall
+            if self.grid[player.x, player.y] > 0 and self.grid[player.x, player.y] != player.number:
+                killed_by_other = True
+            player.undo_move(move)
+
+        return killed_by_other
+
+
     def move_players(self, player_1: Player, player_2: Player) -> None:
         """
         Apply a movement to all the players based on their allowed moves
@@ -192,10 +220,12 @@ class Game:
             player_min = [player for player in players
                           if player != player_max][0]
 
-            _, next_move = self.minimax(depth=3,
+            _, next_move = self.minimax(depth=7,
                                         maximizing_player=player_max,
                                         minimizing_player=player_min,
-                                        maximizing_player_1=True
+                                        alpha=float('-inf'),
+                                        beta=float('inf'),
+                                        maximizing_player_1=True,
                                         )
 
             print(f'Player {i} next move :', next_move)
@@ -224,7 +254,7 @@ class Game:
             player.dead = True
 
     def minimax(self, depth: int, maximizing_player: Player,
-                minimizing_player: Player, maximizing_player_1=True) \
+                minimizing_player: Player, alpha: float, beta: float, maximizing_player_1=True) \
             -> tuple[int, tuple[int, int]]:
         """
         Use the minimax algorithm to explore a tree and select the best output
@@ -232,6 +262,8 @@ class Game:
         :param maximizing_player: player to maximize the score
         :param minimizing_player: player to minimize the score
         :param maximizing_player_1: maximize the score of the player 1
+        :param alpha: the best score for the maximizing player
+        :param beta: the best score for the minimizing player
         :return: tuple of integer and tuple of integers (a, (i, j)) representing
          the best move, where:
                  - a represent the score_board of the current state
@@ -241,7 +273,6 @@ class Game:
         # We check if the players should be alive or not
         self.check_alive(maximizing_player)
         self.check_alive(minimizing_player)
-
         # As we use this function recursively, we need to check the end game
         # condition. It will change 'winner' attribute if the game is over
         self.check_end_game(maximizing_player, minimizing_player)
@@ -268,6 +299,7 @@ class Game:
 
                 score, _ = self.minimax(depth - 1, maximizing_player,
                                         minimizing_player,
+                                        alpha, beta,
                                         not maximizing_player_1)
 
                 # We assign the oldest position to the maximizing_player to
@@ -278,6 +310,13 @@ class Game:
                 if score > best_score:
                     best_score = score
                     best_move = move
+
+                # Update alpha
+                alpha = max(alpha, score)
+                # Prune the branch if beta <= alpha
+                if beta <= alpha:
+                    break
+
         # In the case we need to minimize the score of the minimizing_player
         else:
             # As we minimize, we start from inf
@@ -295,6 +334,7 @@ class Game:
                 score, _ = self.minimax(depth - 1,
                                         maximizing_player,
                                         minimizing_player,
+                                        alpha, beta,
                                         not maximizing_player_1)
 
                 # We assign the oldest position to the minimizing_player to
@@ -305,5 +345,11 @@ class Game:
                 if score < best_score:
                     best_score = score
                     best_move = move
+
+                # Update beta
+                beta = min(beta, score)
+                # Prune the branch if beta <= alpha
+                if beta <= alpha:
+                    break
 
         return best_score, best_move
